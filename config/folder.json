@@ -1,0 +1,5 @@
+{
+  "get_files_local_folder" : "ftp_file",
+  "cloud_folder": "",
+  "destination_files_folder": "download"
+}
