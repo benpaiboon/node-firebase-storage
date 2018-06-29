@@ -1,5 +1,5 @@
 {
   "get_files_local_folder" : "ftp_file",
-  "cloud_folder": "",
+  "cloud_folder": "MPAI_CSV",
   "destination_files_folder": "download"
 }

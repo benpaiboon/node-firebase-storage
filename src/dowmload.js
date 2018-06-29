@@ -15,26 +15,29 @@ const bucket = admin.storage().bucket();
 // Get all files from firebase storage
 bucket.getFiles().then(results => {
   const files = results[0];
-  // console.log(files.length);
   if (files.length <= 0) {
     console.log(`There are no any files in firebase storage.`);
   }
   else {
     files.forEach(file => {
-      const firebaseFile = bucket.file(file.name);
-      const destFilename = `${folder.destination_files_folder}/${file.name}`;
+      let cloudFilePath = `${file.name}`;
+      let prefixFolder = `${folder.cloud_folder}/`;
+      let onlyFileName = cloudFilePath.slice(prefixFolder.length);
+
+      const firebaseFile = bucket.file(cloudFilePath);
+      const destFilename = `${folder.destination_files_folder}/${onlyFileName}`;
       const options = { destination: destFilename };
 
       firebaseFile.download(options)
         .then(() => {
           // 1st then download file from firebase storage to local folder.
-          console.log(`gs://${bucket.name}/${file.name} downloaded to ${destFilename}`);
+          console.log(`gs://${bucket.name}/${cloudFilePath} downloaded to ${destFilename}`);
         })
         .then(() => {
           // 2nd then delete all files from firebase storage.
           firebaseFile.delete()
             .then(() => {
-              console.log(`Successfully deleted file: ${file.name}`)
+              console.log(`Successfully deleted file from firebase: ${cloudFilePath}`)
             }).catch(err => {
               console.log(`Failed to remove, error: ${err}`)
             });

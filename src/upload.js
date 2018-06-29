@@ -16,12 +16,12 @@ const bucket = admin.storage().bucket();
 
 // Upload all files to firebase storage
 fs.readdirSync(folder.get_files_local_folder).forEach(file => {
-  let filePath = `${folder.get_files_local_folder}/${file}`;
-  let uploadTo = `${file}`;
-  let fileMime = mime.getType(filePath);
+  let localFilePath = `${folder.get_files_local_folder}/${file}`;
+  let destFile = `${file}`;
+  let fileMime = mime.getType(localFilePath);
 
-  bucket.upload(filePath, {
-    destination: uploadTo,
+  bucket.upload(localFilePath, {
+    destination: `${folder.cloud_folder}/${destFile}`,
     public: true,
     metadata: { contentType: fileMime, cacheControl: "public, max-age=300" }
   }, function (err, file) {
@@ -29,7 +29,7 @@ fs.readdirSync(folder.get_files_local_folder).forEach(file => {
       console.log(err);
       return;
     }
-    console.log(`http://storage.googleapis.com/${bucket.name}/${encodeURIComponent(uploadTo)}`);
+    console.log(`http://storage.googleapis.com/${bucket.name}/${folder.cloud_folder}/${encodeURIComponent(destFile)}`);
   });
 });
 
