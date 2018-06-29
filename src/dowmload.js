@@ -12,26 +12,38 @@ admin.initializeApp({
 // Init Bucket
 const bucket = admin.storage().bucket();
 
-// Download all files from firebase storage
+// Get all files from firebase storage
 bucket.getFiles().then(results => {
   const files = results[0];
-  files.forEach(file => {
-    // console.log(file.name);
-    const destFilename = `${folder.destination_files_folder}/${file.name}`;
-    const options = { destination: destFilename };
+  // console.log(files.length);
+  if (files.length <= 0) {
+    console.log(`There are no any files in firebase storage.`);
+  }
+  else {
+    files.forEach(file => {
+      const firebaseFile = bucket.file(file.name);
+      const destFilename = `${folder.destination_files_folder}/${file.name}`;
+      const options = { destination: destFilename };
 
-    bucket.file(file.name)
-      .download(options)
-      .then(() => {
-        console.log(
-          `gs://${bucket.name}/${file.name} downloaded to ${destFilename}`
-        );
-      })
-      .catch(err => {
-        console.error('ERROR:', err);
-      });
-  });
+      firebaseFile.download(options)
+        .then(() => {
+          // 1st then download file from firebase storage to local folder.
+          console.log(`gs://${bucket.name}/${file.name} downloaded to ${destFilename}`);
+        })
+        .then(() => {
+          // 2nd then delete all files from firebase storage.
+          firebaseFile.delete()
+            .then(() => {
+              console.log(`Successfully deleted file: ${file.name}`)
+            }).catch(err => {
+              console.log(`Failed to remove, error: ${err}`)
+            });
+        })
+        .catch(err => {
+          console.error('ERROR:', err);
+        });
+    });
+  }
 }).catch(err => {
   console.error('ERROR:', err);
 });
-
